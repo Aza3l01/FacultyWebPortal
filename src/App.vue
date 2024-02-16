@@ -4,6 +4,7 @@ import EditableBanner from './components/banner/EditableBanner.vue';
 import Details from './components/Details.vue';
 import Experience from './components/Experience.vue';
 import Research from './components/Research.vue';
+import Academic from './components/Academic.vue';
 </script>
 
 <template>
@@ -13,6 +14,7 @@ import Research from './components/Research.vue';
     <Details />
     <Experience />
     <Research />
+    <Academic />
   </div>
 </template>
 

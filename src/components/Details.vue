@@ -75,10 +75,6 @@ h1 {
   color: #3e8687;
 }
 
-h3, p, input {
-  margin-bottom: 5px;
-}
-
 h3 {
   margin-top: 0;
 }

@@ -112,7 +112,7 @@ li {
 }
 
 .edit-input {
-  width: 200px;
+  width: 500px;
   padding: 5px;
   border-radius: 5px;
 }

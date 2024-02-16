@@ -97,7 +97,6 @@ export default {
 <style scoped>
 .experience {
   font-family:Arial, Helvetica, sans-serif;
-  
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -152,14 +151,14 @@ li {
 }
 
 .edit-input {
-  width: 400px;
+  width: 500px;
   padding: 5px;
   border-radius: 5px;
 }
 
 .edit-input::placeholder {
-  color: #aaa; /* Placeholder text color */
-  opacity: 0.5; /* Placeholder text opacity */
+  color: #aaa;
+  opacity: 0.5; 
 }
 
 .date-picker {

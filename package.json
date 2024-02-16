@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "vue": "^3.4.15",
+    "vue3-datepicker": "^0.4.0",
     "vue3-sfc-loader": "^0.9.5"
   },
   "devDependencies": {

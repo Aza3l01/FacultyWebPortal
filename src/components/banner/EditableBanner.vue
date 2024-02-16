@@ -14,7 +14,7 @@ import EditModal from '@/components//banner/EditModal.vue';
 export default {
   data() {
     return {
-      defaultImageUrl: 'https://i.imgur.com/bruuczo.jpg', // Replace with your default image path
+      defaultImageUrl: 'https://i.imgur.com/gTVVh3h.jpg', // Replace with your default image path
       imageUrl: '', // Initial image URL
     };
   },
@@ -34,36 +34,43 @@ export default {
 
 <style scoped>
 .editable-banner-container {
-  height: 300px;
+  height: 200px;
   display: flex;
   justify-content: center;
   align-items: center;
+  padding-top: 20px;
 }
 
 .editable-banner {
   position: relative;
   display: inline-block;
-  height: 100%; /* Set the height to 100% to limit the vertical space */
-  overflow: hidden; /* Hide content that overflows the container */
+  width: 200px;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 5%;
 }
 
 .banner-image {
   width: 100%;
   height: 100%;
-  object-fit: cover; /* Cut off and cover the container */
+  object-fit: cover;
   cursor: pointer;
-  object-fit: cover; /* Crop the image to cover the container */
-  object-position: center
 }
 
 .edit-button {
   position: absolute;
-  top: 10px;
+  bottom: 10px;
   right: 10px;
   font-size: 20px;
-  background-color: transparent;
+  background-color: #616161;
   border: none;
   cursor: pointer;
-  color: #007bff; /* Change color as needed */
+  color: white;
+  border-radius: 15%;
 }
+
+button:hover {
+  background-color: #2c5f60;
+}
+
 </style>

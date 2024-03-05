@@ -20,7 +20,7 @@ export default {
       title: "Dr. Ansuman Mahapatra",
       designation: "Assistant Professor",
       department: "Department of Computer Science and Engineering",
-      address: "National Institute of Technology Puducherry, Thiruvettakudy, Karakal - 609609, Puducherry, India",
+      address: "National Institute of Technology Puducherry, Thiruvettakudy, Karaikal - 609609, Puducherry, India",
       email: "ansuman.mahapatra@nitpy.ac.in",
       phone: "+91-8895590157",
       isEditing: false,
@@ -55,7 +55,7 @@ div {
   font-size: 18px;
   color: #ffffff;
   border-radius: 15%;
-  margin-left: 10px;
+  margin-left: 5px;
 }
 
 .edit-button:hover, .cancel-button:hover {
@@ -68,6 +68,7 @@ div {
   justify-content: center;
   align-items: center;
   padding: 0px;
+  box-sizing: border-box;
 }
 
 h1 {

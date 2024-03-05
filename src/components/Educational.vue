@@ -89,8 +89,9 @@
     width: 100%;
     background-color: #c2d8d8;
     padding: 10px 20px; /* Padding for the heading */
-    height: 50px;
+    height: 70px;
     margin-top: 15px;
+    box-sizing: border-box;
   }
   
   .heading {

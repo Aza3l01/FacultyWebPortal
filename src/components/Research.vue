@@ -71,7 +71,8 @@ export default {
   width: 100%;
   background-color: #c2d8d8;
   padding: 10px 20px;
-  height: 50px
+  height: 70px;
+  box-sizing: border-box; 
 }
 
 .heading {

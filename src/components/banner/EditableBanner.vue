@@ -1,7 +1,7 @@
 <template>
   <div class="editable-banner-container">
     <div class="editable-banner">
-      <img :src="imageUrl || defaultImageUrl" alt="Banner Image" class="banner-image" @click="openEditModal">
+      <img :src="imageUrl || defaultImageUrl" alt="Profile" class="banner-image" @click="openEditModal">
       <EditModal ref="editModal" @update-image="updateImage" />
       <button class="edit-button" @click="openEditModal">✎</button>
     </div>
@@ -14,7 +14,7 @@ import EditModal from '@/components//banner/EditModal.vue';
 export default {
   data() {
     return {
-      defaultImageUrl: 'https://i.imgur.com/gTVVh3h.jpg', // Replace with your default image path
+      defaultImageUrl: 'https://imgur.com/UY0js48.jpg', // Replace with your default image path
       imageUrl: '', // Initial image URL
     };
   },
@@ -44,7 +44,6 @@ export default {
 .editable-banner {
   position: relative;
   display: inline-block;
-  width: 200px;
   height: 100%;
   overflow: hidden;
   border-radius: 5%;

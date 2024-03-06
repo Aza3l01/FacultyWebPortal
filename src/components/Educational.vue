@@ -18,7 +18,7 @@
           </template>
           <template v-else>
   <span>
-    {{ qualification.degree }} in {{ qualification.field }} from {{ qualification.university }} : {{ formatDate(qualification.year) }}
+    {{ qualification.degree }} in {{ qualification.field }} from {{ qualification.university }}: {{ formatDate(qualification.year) }}
   </span>
 </template>
 
@@ -39,7 +39,7 @@
         editMode: false,
         qualifications: [
           { degree: 'Ph.D.', field: 'Computer Science', university: 'Nit Rourkela', year: new Date(2018,0,1) },
-          { degree: 'M.Tech', field: 'Computer Science', university: 'Kalinga Institute of Industrial Technology ', year: new Date(2011,0,1) },
+          { degree: 'M.Tech', field: 'Computer Science', university: 'Kalinga Institute of Industrial Technology', year: new Date(2011,0,1) },
           { degree: 'B.Tech', field: 'Computer Engineering', university: 'Gandhi Institute of Technological Advancement (GITA)', year: new Date(2009,0,1) },
           { degree: '10+2', field: 'Hsc', university: 'Birmaharajpur College', year: new Date(2004,0,1) },
           { degree: '10th', field: 'Bse', university: 'Birmaharajpur High School', year: new Date(2002,0,1) },

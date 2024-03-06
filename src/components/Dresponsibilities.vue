@@ -14,6 +14,7 @@
             <input type="text" v-model="experience.designation" class="edit-input" placeholder="Designation" @focus="clearPlaceholder(index)" />
             <datepicker v-model="experience.fromDate" class="date-picker" placeholder="From Date" :config="{ format: 'dd/MM/yyyy' }" :editable="true"></datepicker>
             <datepicker v-model="experience.toDate" class="date-picker" placeholder="Till Date" :config="{ format: 'dd/MM/yyyy' }" :editable="true"></datepicker>
+            <button @click="removeQualification(index)">delete</button>
           </template>
           <template v-else>
             <span>{{ experience.designation }}, ({{ formatDate(experience.fromDate) }} - {{ formatDate(experience.toDate) }})</span>
@@ -81,6 +82,9 @@
             toDate: new Date()
           });
         }
+      },
+      removeQualification(index){
+      this.experiences.splice(index,1)
       },
       cancelEdit() {
         this.editMode = false;

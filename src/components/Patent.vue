@@ -108,7 +108,10 @@
 
   li {
     margin-bottom: 10px;
-    text-align: center; /* Center the bullet points */
+    text-align: left;
+    list-style-type: disc;
+    word-wrap: break-word;
+    max-width: 1000px;
   }
 
   .edit-input {
@@ -117,10 +120,4 @@
     border-radius: 5px;
   }
 
-  li {
-    margin-bottom: 10px;
-    list-style-type: disc; /* Add this line to set bullet points */
-    word-wrap: break-word; /* Wrap text within the character limit */
-    max-width: 800px; /* Adjust the maximum width as needed */
-  }
 </style>

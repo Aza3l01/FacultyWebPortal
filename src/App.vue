@@ -6,6 +6,11 @@ import Educational from './components/Educational.vue';
 import Experience from './components/Experience.vue';
 import Research from './components/Research.vue';
 import Academic from './components/Academic.vue';
+import Internationalconference from './components/Internationalconference.vue';
+import National from './components/National.vue';
+import Internationaljournal from './components/Internationaljournal.vue';
+import Nationaljournal from './components/Nationaljournal.vue';
+import Bookchapter from './components/Bookchapter.vue';
 import Patent from './components/Patent.vue';
 import Responsibilities from './components/Responsibilities.vue';
 import Dresponsibilities from './components/Dresponsibilities.vue';
@@ -29,6 +34,11 @@ import Links from './components/Links.vue';
     <Experience />
     <Research />
     <Academic />
+    <Internationalconference />
+    <National />
+    <Internationaljournal />
+    <Nationaljournal />
+    <Bookchapter />
     <Patent />
     <Responsibilities />
     <Dresponsibilities />

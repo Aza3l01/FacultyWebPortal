@@ -1,7 +1,7 @@
 <template>
     <div class="training">
       <div class="header-container">
-        <h2 class="heading">Training/ Workshop Attended</h2>
+        <h2 class="heading">Training/Workshop Attended</h2>
         <div class="buttons">
           <button @click="toggleEditMode">{{ editMode ? 'Save' : '✎' }}</button>
           <button v-if="editMode" @click="addNewArea">+</button>
@@ -9,9 +9,9 @@
         </div>
       </div>
       <ul>
-        <li v-for="(area, index) in researchAreas" :key="index">
+        <li v-for="(area, index) in trainingAreas" :key="index">
           <template v-if="editMode">
-            <input type="text" v-model="researchAreas[index]" class="edit-input" />
+            <input type="text" v-model="trainingAreas[index]" class="edit-input" />
           </template>
           <template v-else>
             <span>{{ area }}</span>
@@ -26,9 +26,9 @@
     data() {
       return {
         editMode: false,
-        researchAreas: [
+        trainingAreas: [
           'Instructional Design and Delivery System, 4th-9th December 2018, by NITTR',
-          'ATAL FDP on Blockchain, 27th -31st December 2019',
+          'ATAL FDP on Blockchain, 27th-31st December 2019',
           'Central Civil Services (CCA) rules, 21st and 22nd February 2019',
           'Social Media Champions Worshop, MHRD, 27th Dec 2019',
           'Innovation Ambassador Training Program, 6th and 7th January 2020',
@@ -40,14 +40,14 @@
       toggleEditMode() {
         if (this.editMode) {
           // Remove empty areas if they exist
-          this.researchAreas = this.researchAreas.filter(area => area.trim() !== '');
+          this.trainingAreas = this.trainingAreas.filter(area => area.trim() !== '');
           // You can add logic here to save changes to a database or perform other actions
         }
         this.editMode = !this.editMode;
       },
       addNewArea() {
         if (this.editMode) {
-          this.researchAreas.push('');
+          this.trainingAreas.push('');
           // If you have a default value for new areas, you can assign it here
         }
       },

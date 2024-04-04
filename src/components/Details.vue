@@ -14,6 +14,7 @@
 </template>
 
 <script>
+import axios from 'axios';
 export default {
   data() {
     return {
@@ -21,24 +22,49 @@ export default {
       designation: "Assistant Professor",
       department: "Department of Computer Science and Engineering",
       address: "National Institute of Technology Puducherry, Thiruvettakudy, Karaikal - 609609, Puducherry, India",
-      email: "ansuman.mahapatra@nitpy.ac.in",
-      phone: "+91-8895590157",
+      email: "",
+      phone: "",
       isEditing: false,
     };
   },
   methods: {
-    editInfo() {
+    async editInfo() {
       if (this.isEditing) {
-        // Save edited information or make an API call to save it
-        // You can add validation before saving
+        await axios.post('http://localhost:3000/Details', {
+      email: this.email,
+      phone: this.phone
+    })
+    .then(response => {
+      console.log('User info saved:', response.data);
+      // Optionally, perform additional actions after saving
+    })
+    .catch(error => {
+      console.error('Error saving user info:', error);
+      // Handle error
+    });
       }
+      this.fetchData();
       this.isEditing = !this.isEditing;
     },
     cancelEdit() {
-      // Reset the input fields or perform other cancelation logic if needed
+      this.fetchData();
       this.isEditing = false;
     },
+    async fetchData() {
+  try {
+    const response = await axios.get('http://localhost:3000/Details');
+    const userinfo = response.data;
+    console.log(userinfo);
+    this.email = userinfo.email;
+    this.phone = userinfo.phone;
+  } catch (error) {
+    console.error('Error fetching user info:', error);
+  }
+}
   },
+  mounted(){
+    this.fetchData();
+  }
 };
 </script>
 

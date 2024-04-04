@@ -11,10 +11,11 @@
       <ul>
         <li v-for="(qualification, index) in qualifications" :key="index">
           <template v-if="editMode">
-            <input type="text" v-model="qualification.degree" class="edit-input" placeholder="Degree" @focus="clearPlaceholder(index)" />
+            <input type="text" v-model="qualification.degree" class="edit-input" placeholder="Degree"  />
             <input type="text" v-model="qualification.field" class="edit-input" placeholder="Field" />
             <input type="text" v-model="qualification.university" class="edit-input" placeholder="University" />
             <datepicker v-model="qualification.year" class="date-picker" placeholder="Year" :config="{ format: 'yyyy' }" :editable="true"></datepicker>
+            <button @click="deleteDetail(qualification._id)">Delete</button>
           </template>
           <template v-else>
   <span>
@@ -28,6 +29,7 @@
   </template>
   
   <script>
+  import axios from 'axios';
   import Datepicker from 'vue3-datepicker';
   
   export default {
@@ -37,40 +39,86 @@
     data() {
       return {
         editMode: false,
-        qualifications: [
-          { degree: 'Ph.D.', field: 'Computer Science', university: 'Nit Rourkela', year: new Date(2018,0,1) },
-          { degree: 'M.Tech', field: 'Computer Science', university: 'Kalinga Institute of Industrial Technology', year: new Date(2011,0,1) },
-          { degree: 'B.Tech', field: 'Computer Engineering', university: 'Gandhi Institute of Technological Advancement (GITA)', year: new Date(2009,0,1) },
-          { degree: '10+2', field: 'Hsc', university: 'Birmaharajpur College', year: new Date(2004,0,1) },
-          { degree: '10th', field: 'Bse', university: 'Birmaharajpur High School', year: new Date(2002,0,1) },
-        ],
+        qualifications: []
       };
     },
     methods: {
-      toggleEditMode() {
-        if (this.editMode) {
-          this.qualifications = this.qualifications.filter(q => q.degree.trim() !== '');
+      async toggleEditMode() {
+  this.editMode = !this.editMode;
+  if (!this.editMode) {
+    try {
+      // Delete all existing qualifications
+      await Promise.all(this.qualifications.map(qualification => {
+        if (qualification._id) {
+          return axios.delete(`http://localhost:3000/Educational/${qualification._id}`);
         }
-        this.editMode = !this.editMode;
-      },
-      addQualification() {
-        if (this.editMode) {
-          this.qualifications.push({ degree: '', field: '', university: '', year: new Date() });
-        }
-      },
-      clearPlaceholder(index) {
-        this.qualifications[index].degree = '';
-        this.qualifications[index].field = '';
-        this.qualifications[index].university = '';
-      },
-      cancelEdit() {
-      this.editMode = false;
-      // Reset the input fields or perform other cancelation logic if needed
-    },
-      formatDate(date) {
-    return date.getFullYear().toString();
+        return Promise.resolve(); // Resolve for qualifications without _id
+      }));
+
+      // Save all qualifications
+      await axios.post('http://localhost:3000/Educational', {
+        Educational: this.qualifications.map(qualification => ({
+          _id: qualification._id,
+          degree: qualification.degree,
+          field: qualification.field,
+          university: qualification.university,
+          year: qualification.year
+        }))
+      }
+      );
+
+      this.fetchData();
+    } catch (error) {
+      console.error('Error saving data:', error);
+    }
   }
+},
+
+addQualification() {
+        if (this.editMode) {
+          this.qualifications.push({
+            degree: '',
+            field: '',
+            university: '',
+            year: new Date()
+          });
+        }
+      },
+      formatDate(date) {
+        return date.getFullYear().toString();
+},
+async fetchData() {
+  try {
+    const response = await axios.get('http://localhost:3000/Educational');
+    this.qualifications = response.data.map(qualification => ({
+      _id: qualification._id,
+      degree: qualification.degree,
+      field: qualification.field,
+      university: qualification.university,
+      year: new Date(qualification.year),
+    }));
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+},
+    async deleteDetail(detailId) {
+      try {
+        console.log(detailId);
+        await axios.delete(`http://localhost:3000/Educational/${detailId}`);
+        const index = this.qualifications.findIndex((qualification) => qualification._id === detailId);
+        this.qualifications.splice(index, 1);
+      } catch (error) {
+        console.error('Error deleting detail:', error);
+      }
     },
+    cancelEdit() {
+        this.fetchData();
+        this.editMode = false;
+      }
+    },
+    mounted() {
+    this.fetchData(); 
+  }
   };
   </script>
   

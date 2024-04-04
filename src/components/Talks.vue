@@ -1,57 +1,96 @@
 <template>
-    <div class="talks">
-      <div class="header-container">
-        <h2 class="heading">Invited Talks Delivered</h2>
-        <div class="buttons">
-          <button @click="toggleEditMode">{{ editMode ? 'Save' : '✎' }}</button>
-          <button v-if="editMode" @click="addNewArea">+</button>
-          <button v-if="editMode" @click="cancelEdit">Cancel</button>
-        </div>
+  <div class="talks">
+    <div class="header-container">
+      <h2 class="heading">Invited Talks Delivered</h2>
+      <div class="buttons">
+        <button @click="toggleEditMode">{{ editMode ? 'Save' : '✎' }}</button>
+        <button v-if="editMode" @click="addNewArea">+</button>
+        <button v-if="editMode" @click="cancelEdit">Cancel</button>
       </div>
-      <ul>
-        <li v-for="(area, index) in researchAreas" :key="index">
-          <template v-if="editMode">
-            <input type="text" v-model="researchAreas[index]" class="edit-input" />
+    </div>
+    <ul>
+      <li v-for="(area, index) in researchAreas" :key="index">
+        <template v-if="editMode">
+          <input type="text" v-model="researchAreas[index].researchAreas" class="edit-input" />
+            <button @click="deletearea(area._id)">Delete</button>
           </template>
           <template v-else>
-            <span>{{ area }}</span>
-          </template>
-        </li>
-      </ul>
-    </div>
-  </template>
-  
-  <script>
+            <span>{{ area.researchAreas}}</span>
+        </template>
+      </li>
+    </ul>
+  </div>
+</template>
+
+<script>
+  import axios from 'axios';
   export default {
     data() {
       return {
         editMode: false,
-        researchAreas: [
-          'STC on Matlab & LabVIEW at IIITDM Kancheepuram, 2018',
-          'AICTE QIP - STC on Recent trends in Wireless Multimedia Communications, 2019'
-        ]
+        researchAreas: []
       };
     },
     methods: {
-      toggleEditMode() {
+      async toggleEditMode() {
         if (this.editMode) {
-          // Remove empty areas if they exist
-          this.researchAreas = this.researchAreas.filter(area => area.trim() !== '');
-          // You can add logic here to save changes to a database or perform other actions
+        try {
+          await Promise.all(this.researchAreas.map(area => {
+        if (area._id) {
+          return axios.delete(`http://localhost:3000/Talk/${area._id}`);
         }
+        return Promise.resolve(); // Resolve for researchAreas without _id
+      }));
+
+      // Save all researchAreas
+      await axios.post('http://localhost:3000/Talk', {
+        researchAreas: this.researchAreas.map(area => ({
+          _id: area._id,
+          researchAreas: area.researchAreas,
+        }))
+      }
+      );
+
+          this.fetchData();
+        } catch (error) {
+          console.error('Error saving researchAreas:', error);
+        }
+      }
         this.editMode = !this.editMode;
       },
       addNewArea() {
         if (this.editMode) {
-          this.researchAreas.push('');
-          // If you have a default value for new areas, you can assign it here
-        }
-      },
-      cancelEdit() {
-        this.editMode = false;
-        // You may want to reset the input values or revert changes if needed
+        this.researchAreas.push({ researchAreas: '' });
       }
-    }
+      },
+      async fetchData() {
+      try {
+        const response = await axios.get('http://localhost:3000/Talk');
+        this.researchAreas = response.data.map(area => ({
+      _id: area._id,
+      researchAreas: area.researchAreas,
+    }));
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    },
+    async deletearea(areaId) {
+      try {
+        await axios.delete(`http://localhost:3000/Talk/${areaId}`);
+        const index = this.researchAreas.findIndex((area) => area._id === areaId);
+        this.researchAreas.splice(index, 1);
+      } catch (error) {
+        console.error('Error deleting area:', error);
+      }
+    },
+      cancelEdit() {
+        this.fetchData();
+        this.editMode = false;
+      }
+    },
+    mounted() {
+    this.fetchData();
+  }
   };
   </script>
   

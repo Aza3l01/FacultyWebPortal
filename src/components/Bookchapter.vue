@@ -24,7 +24,7 @@
               <datepicker v-model="qualification.date" class="date-picker" placeholder="Year" :config="{ format: 'yyyy' }" :editable="true"></datepicker>
               <input type="text" v-model="qualification.indexing" class="edit-input" placeholder="Indexing" />
               <input type="text" v-model="qualification.published" class="edit-input" placeholder="Publisher" />
-              <button @click="removeQualification(index)">delete</button>
+              <button @click="removeQualification(qualification._id)">delete</button>
             </div>
             
           </div>
@@ -39,7 +39,7 @@
           <div v-if="editMode">
             <div v-if="selectedOption === 'user'">
             <input type="text" v-model="userinput.textbox" class="edit-input" placeholder="Enter user input" >
-            <button @click="removeQualificationUser(index)">delete</button>
+            <button @click="removeQualificationUser(userinput._id)">delete</button>
             </div>
           </div>
             <span v-if="!editMode && selectedOption === 'user'">
@@ -52,6 +52,7 @@
   </template>
   
   <script>
+  import axios from 'axios';
   import Datepicker from 'vue3-datepicker';
   
   export default {
@@ -61,15 +62,80 @@
     data() {
       return {
         editMode: false,
-        qualifications: [{ author_name: 'Ansuman Mahapatra', title: '360 Degree User Generated Videos: Current Research and Future Trends', booktitle: ' High Performance Vision Intelligence: Recent Advancements', published: 'Springer',  date: new Date(2022,1,1), vol: '1', page_no: '117-135', indexing: '1',issue: '1' },],
-        userInput: [{textbox: 'type'}],
+        qualifications: [],
+        userInput: [],
         selectedOption: 'fill',
       };
     },
     methods: {
-      toggleEditMode() {
-        this.editMode = !this.editMode;
-      },
+      async toggleEditMode() {
+      this.editMode = !this.editMode;
+      if (!this.editMode) {
+      try {
+    // Delete all existing qualifications
+      await Promise.all(this.qualifications.map(qualification => {
+      if (qualification._id) {
+        return axios.delete(`http://localhost:3000/Bookchapter/fill/${qualification._id}`);
+      }
+      return Promise.resolve(); // Resolve for qualifications without _id
+      }));
+
+    // Save all qualifications
+      await axios.post('http://localhost:3000/Bookchapter/fill', {
+      National: this.qualifications.map(qualification => ({
+        _id: qualification._id,
+        author_name: qualification.author_name,
+        title: qualification.title,
+        journalname: qualification.journalname,
+        published: qualification.published,
+        date: qualification.date,
+        issue: qualification.issue,
+        venue: qualification.venue,
+        vol: qualification.vol,
+        vol_no: qualification.vol_no,
+        page_no: qualification.page_no,
+        indexing: qualification.indexing,
+      }))
+    }
+    );
+
+    
+    
+    this.fetchData();
+    } catch (error) {
+    console.error('Error saving data:', error);
+    }
+    }
+    },
+    async fetchData() {
+    try {
+    const response = await axios.get('http://localhost:3000/Bookchapter/fill');
+    this.qualifications = response.data.map(qualification => ({
+    _id: qualification._id,
+    author_name: qualification.author_name,
+        title: qualification.title,
+        journalname: qualification.journalname,
+        published: qualification.published,
+        date: new Date (qualification.date),
+        issue: qualification.issue,
+        venue: qualification.venue,
+        vol: qualification.vol,
+        vol_no: qualification.vol_no,
+        page_no: qualification.page_no,
+        indexing: qualification.indexing,
+  }));
+
+  const response1 = await axios.get('http://localhost:3000/Bookchapter/user');
+  this.userInput = response1.data.map(userinput => ({
+    _id: userinput._id,
+    textbox: userinput.textbox,
+  }));
+
+
+  } catch (error) {
+  console.error('Error fetching data:', error);
+  }
+  },
       addQualification() {
         if (this.editMode && this.selectedOption === 'fill') {
           this.qualifications.push({ author_name: '', title: '', booktitle: '', published: '',venue :'', date: new  Date(),vol:'', page_no:'',indexing:'',dol_link:'' });
@@ -80,16 +146,6 @@
           this.userInput.push({textbox: ''});
       }
       },
-      /*clearPlaceholder(index) {
-        this.qualifications[index].author_name = '';
-        this.qualifications[index].title = '';
-        this.qualifications[index].booktitle = '';
-        this.qualifications[index].published  = '';
-        this.qualifications[index].date  = '';
-        this.qualifications[index].vol_no  = '';
-        this.qualifications[index].page_no  = '';
-        this.qualifications[index].indexing  = '';
-      },*/
       formatDate(date) {
     return date.getFullYear().toString();
   },
@@ -97,21 +153,55 @@
         
         this.selectedOption = 'user';
       },
-      saveUserInput() {
+      async  saveUserInput() {
+  this.editMode=!this.editMode 
+  await Promise.all(this.userInput.map(unserinput => {
+      if (unserinput._id) {
+        return axios.delete(`http://localhost:3000/Bookchapter/user/${unserinput._id}`);
+      }
+      return Promise.resolve(); // Resolve for userInput without _id
+    }));
+
+    // Save all userInput
+    await axios.post('http://localhost:3000/Bookchapter/user', {
+      National: this.userInput.map(userinput => ({
+        _id: userinput._id,
+        textbox: userinput.textbox,
+      }))
+    }
     
-    this.editMode=!this.editMode 
-  },
+    );
+    
+    this.fetchData();
+},
   addFillbox(){
     this.selectedOption = 'fill';
   },
-    removeQualification(index){
-      this.qualifications.splice(index,1)
-    },
-    removeQualificationUser(index){
-      this.userInput.splice(index,1);
+  async removeQualification(detailId){
+    try {
+      console.log(detailId);
+      await axios.delete(`http://localhost:3000/Bookchapter/fill/${detailId}`);
+      const index = this.qualifications.findIndex((qualification) => qualification._id === detailId);
+      this.qualifications.splice(index, 1);
+    } catch (error) {
+      console.error('Error deleting detail:', error);
     }
-  
+  },
+  async removeQualificationUser(detailId){
+    try {
+      console.log(detailId);
+      await axios.delete(`http://localhost:3000/Bookchapter/user/${detailId}`);
+      const index = this.userInput.findIndex((userinput) => userinput._id === detailId);
+      this.userInput.splice(index, 1);
+    } catch (error) {
+      console.error('Error deleting detail:', error);
+    }
+  }
+
     },
+    mounted(){
+    this.fetchData();
+  }
   };
   </script>
   

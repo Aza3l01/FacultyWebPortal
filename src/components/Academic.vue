@@ -3,21 +3,21 @@
     <div class="header-container">
       <h2 class="heading">Academic Contributions</h2>
       <div class="buttons">
-        <button v-if="editMode" @click="saveChanges" class="save-button right">Save</button>
+        <button @click="toggleEditMode" class="edit-button">{{ editMode ? 'Save' : '✎' }}</button>
         <button v-if="editMode" @click="addNewElement('ugCourses')" class="plus-button right">UG +</button>
         <button v-if="editMode" @click="addNewElement('pgCourses')" class="plus-button right">PG +</button>
-        <button v-if="editMode" @click="toggleEditMode" class="cancel-button right">Cancel</button>
-        <button v-else @click="toggleEditMode" class="edit-button">✎</button>
+        <button v-if="editMode" @click="cancelEdit" class="cancel-button">cancel</button>
       </div>
     </div>
     <h3>UG level</h3>
     <ul class="course-list">
       <li v-for="(course, index) in ugCourses" :key="index" class="course">
         <template v-if="editMode">
-          <input type="text" v-model="ugCourses[index]" class="edit-input" />
+          <input type="text" v-model="course.course" class="edit-input" />
+          <button @click="deleteUg(course._id)">delete</button>
         </template>
         <template v-else>
-          <span>{{ course }}</span>
+          <span>{{ course.course }}</span>
         </template>
       </li>
     </ul>
@@ -25,10 +25,11 @@
     <ul class="course-list">
       <li v-for="(course, index) in pgCourses" :key="index" class="course">
         <template v-if="editMode">
-          <input type="text" v-model="pgCourses[index]" class="edit-input" />
+          <input type="text" v-model="course.course" class="edit-input" />
+          <button @click="deletePg(course._id)">delete</button>
         </template>
         <template v-else>
-          <span>{{ course }}</span>
+          <span>{{ course.course }}</span>
         </template>
       </li>
     </ul>
@@ -36,53 +37,115 @@
 </template>
   
   <script>
+  import axios from 'axios';
   export default {
     data() {
       return {
         editMode: false,
-        ugCourses: [
-        'Computer Organization and Architecture (July- Dec 2018, 2019 Jul-Dec, 2020 Jul-Dec, 2021 Jul-Dec)',
-        'Advanced Computer Architecture (July- Dec 2018)',
-        'Database Management Systems (2019 Jan-May, 2019 Jul-Dec)',
-        'Operating Systems (2021 Jul-Dec)',
-        'Software Engineering (2020 Jan - Jun, 2021 Jan-May)',
-        'Web Technology (2020 Jul-Dec)',
-        'C Programming (2022 Jan- April)',
-        'Advanced Database Management Systems (2022 Jan- April)',
-        'Computer Graphics (2022 Jul-Dec, 2023 Jul-Dec)',
-        'Web Technology (2023 Jan-May)',
-        'High Performance Computing (2023  Jul-Dec)',
-        'Computer Vision (2024 Jan-May)'
-        ],
-        pgCourses: [
-          'Advanced Database Management Systems (2019 Jan-May, 2020 Jan - Jun, 2021 Jan-May, 2022 Jan- April)',
-          'Computer Graphics and Image Processing (2022 Jul-Dec)'
-        ]
+        ugCourses: [{course:''}],
+        pgCourses: [{course:''}]
       };
     },
     methods: {
-    toggleEditMode() {
-      if (this.editMode) {
-        this.ugCourses = this.ugCourses.filter(course => course.trim() !== '');
-        this.pgCourses = this.pgCourses.filter(course => course.trim() !== '');
-      }
+    async toggleEditMode() {
       this.editMode = !this.editMode;
+      if (!this.editMode) {
+        try {
+          await Promise.all(this.ugCourses.map(course => {
+        if (course._id) {
+          return axios.delete(`http://localhost:3000/Academic/ug/${course._id}`);
+        }
+        return Promise.resolve(); // Resolve for researchAreas without _id
+      }));
+
+      // Save all researchAreas
+      await axios.post('http://localhost:3000/Academic/ug', {
+        courses: this.ugCourses.map(area => ({
+          _id: area._id,
+          course: area.course,
+        }
+        ))
+      }
+      );
+
+      await Promise.all(this.pgCourses.map(course => {
+        if (course._id) {
+          return axios.delete(`http://localhost:3000/Academic/pg/${course._id}`);
+        }
+        return Promise.resolve(); // Resolve for researchAreas without _id
+      }));
+
+      // Save all researchAreas
+      await axios.post('http://localhost:3000/Academic/pg', {
+        courses: this.pgCourses.map(area => ({
+          _id: area._id,
+          course: area.course,
+        }))
+      }
+      );
+
+  
+     
+          this.fetchData();
+        } catch (error) {
+          console.error('Error saving researchAreas:', error);
+        }
+      }
+      
+    
+
+    },
+    async fetchData() {
+      try {
+        const response = await axios.get('http://localhost:3000/Academic/ug');
+        this.ugCourses = response.data.map(area => ({
+      _id: area._id,
+      course: area.course,
+    }));
+    const response1 = await axios.get('http://localhost:3000/Academic/pg');
+        this.pgCourses = response1.data.map(area => ({
+      _id: area._id,
+      course: area.course,
+    }));
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
     },
     addNewElement(courseType) {
       if (this.editMode) {
         if (courseType === 'ugCourses') {
-          this.ugCourses.push('');
+          this.ugCourses.push({course: ''});
         } else if (courseType === 'pgCourses') {
-          this.pgCourses.push('');
+          this.pgCourses.push({course: ''});
         }
       }
     },
-    saveChanges() {
-      // Implement the logic to save changes
-      // For example, you might want to send the updated data to a server or perform any other necessary actions.
-      console.log('Changes saved!');
-      this.editMode = false; // Exit edit mode after saving changes
+    async deleteUg(detailId){
+      try {
+        await axios.delete(`http://localhost:3000/Academic/ug/${detailId}`);
+        const index = this.ugCourses.findIndex((area) => area._id === detailId);
+        this.ugCourses.splice(index, 1);
+      } catch (error) {
+        console.error('Error deleting area:', error);
+      }
+    },
+    async deletePg(detailId){
+      try {
+        await axios.delete(`http://localhost:3000/Academic/pg/${detailId}`);
+        const index = this.pgCourses.findIndex((area) => area._id === detailId);
+        this.pgCourses.splice(index, 1);
+      } catch (error) {
+        console.error('Error deleting area:', error);
+      }
+    },
+    cancelEdit(){
+      this.fetchData();
+      this.editMode=!this.editMode;
     }
+  
+  },
+  mounted(){
+    this.fetchData();
   }
 };
   </script>

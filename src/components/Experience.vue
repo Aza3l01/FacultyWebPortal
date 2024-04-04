@@ -11,9 +11,12 @@
     <ul>
       <li v-for="(experience, index) in experiences" :key="index">
         <template v-if="editMode">
-          <input type="text" v-model="experience.designation" class="edit-input" placeholder="Designation, branch, college" @focus="clearPlaceholder(index)" />
+          <input type="text" v-model="experience.designation" class="edit-input" placeholder="Designation" />
+          <input type="text" v-model="experience.branch" class="edit-input" placeholder="branch" />
+          <input type="text" v-model="experience.college" class="edit-input" placeholder="college" />
           <datepicker v-model="experience.fromDate" class="date-picker" placeholder="From Date" :config="{ format: 'dd/MM/yyyy' }" :editable="true"></datepicker>
           <datepicker v-model="experience.toDate" class="date-picker" placeholder="Till Date" :config="{ format: 'dd/MM/yyyy' }" :editable="true"></datepicker>
+          <button @click="deleteDetail(experience._id)">Delete</button>
         </template>
         <template v-else>
           <span>{{ experience.designation }}, {{ experience.branch }}, {{ experience.college }} ({{ formatDate(experience.fromDate) }} - {{ formatDate(experience.toDate) }})</span>
@@ -24,76 +27,104 @@
 </template>
 
 <script>
-import Datepicker from 'vue3-datepicker';
-
-export default {
-  components: {
-    Datepicker
-  },
-  data() {
-    return {
-      editMode: false,
-      experiences: [
-        {
-          designation: 'Assistant Professor',
-          branch: 'CSE',
-          college: 'NIT Puducherry',
-          fromDate: new Date(2018, 5, 15),
-          toDate: new Date()
-        },
-        {
-          designation: 'Temporary Faculty',
-          branch: 'CSE',
-          college: 'NIT Jamshedpur',
-          fromDate: new Date(2017, 6, 31),
-          toDate: new Date(2018, 4, 31)
-        },
-        {
-          designation: 'Adhoc Faculty',
-          branch: 'CSE',
-          college: 'NIT Jamshedpur',
-          fromDate: new Date(2016, 6, 20),
-          toDate: new Date(2017, 6, 19)
+  import axios from 'axios';
+  import Datepicker from 'vue3-datepicker';
+  
+  export default {
+    components: {
+      Datepicker
+    },
+    data() {
+      return {
+        editMode: false,
+        experiences: []
+      };
+    },
+    methods: {
+      async toggleEditMode() {
+  this.editMode = !this.editMode;
+  if (!this.editMode) {
+    try {
+      // Delete all existing experiences
+      await Promise.all(this.experiences.map(experience => {
+        if (experience._id) {
+          return axios.delete(`http://localhost:3000/Experience/${experience._id}`);
         }
-      ]
-    };
-  },
-  methods: {
-    toggleEditMode() {
-      if (this.editMode) {
-        // Remove empty experiences if they exist
-        this.experiences = this.experiences.filter(exp => exp.designation.trim() !== '');
-        // You can add logic here to save changes to a database or perform other actions
+        return Promise.resolve(); // Resolve for experiences without _id
+      }));
+
+      // Save all experiences
+      await axios.post('http://localhost:3000/Experience', {
+        Experience: this.experiences.map(experience => ({
+          _id: experience._id,
+          designation: experience.designation,
+          branch: experience.branch,
+          college: experience.college,
+          fromDate: experience.fromDate,
+          toDate: experience.toDate
+        }))
       }
-      this.editMode = !this.editMode;
-    },
-    addNewExperience() {
-      if (this.editMode) {
-        this.experiences.push({
-          designation: '',
-          branch: '',
-          college: '',
-          fromDate: new Date(),
-          toDate: new Date()
-        });
-      }
-    },
-    cancelEdit() {
-      this.editMode = false;
-      // Reset the input fields or perform other cancelation logic if needed
-    },
-    clearPlaceholder(index) {
-      // Clear placeholder when the user starts typing
-      this.experiences[index].designation = '';
-    },
-    formatDate(date) {
-      const options = { year: 'numeric', month: 'long', day: 'numeric' };
-      return date.toLocaleDateString('en-US', options);
+      );
+
+      this.fetchData();
+    } catch (error) {
+      console.error('Error saving data:', error);
     }
   }
-};
-</script>
+},
 
+      addNewExperience() {
+        if (this.editMode) {
+          this.experiences.push({
+            designation: '',
+            branch: '',
+            college: '',
+            fromDate: new Date(),
+            toDate: new Date()
+          });
+        }
+      },
+      formatDate(date) {
+        const formattedDate = new Date(date);
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        return formattedDate.toLocaleDateString('en-US', options); 
+},
+async fetchData() {
+  try {
+    const response = await axios.get('http://localhost:3000/Experience');
+    this.experiences = response.data.map(experience => ({
+      _id: experience._id,
+      designation: experience.designation,
+      branch: experience.branch,
+      college: experience.college,
+      fromDate: new Date(experience.fromDate),
+      toDate: new Date(experience.toDate)
+    }));
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+},
+    async deleteDetail(detailId) {
+      try {
+        console.log(detailId);
+        await axios.delete(`http://localhost:3000/Experience/${detailId}`);
+        const index = this.experiences.findIndex((experience) => experience._id === detailId);
+        this.experiences.splice(index, 1);
+      } catch (error) {
+        console.error('Error deleting detail:', error);
+      }
+    },
+
+    cancelEdit() {
+        this.fetchData();
+        this.editMode = false;
+      }
+    },
+    mounted() {
+    this.fetchData(); 
+  }
+  };
+  </script>
 <style scoped>
 .experience {
   font-family:Arial, Helvetica, sans-serif;

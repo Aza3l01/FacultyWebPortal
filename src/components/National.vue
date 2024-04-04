@@ -3,12 +3,12 @@
     <div class="header-container">
       <h2 class="heading">National Conference</h2>
       <div class="buttons">
-        <button v-if="!(editMode && selectedOption ==='user')" @click="toggleEditMode">{{ editMode ? 'Save' : '✎' }}</button>
-        <button v-if="editMode && selectedOption === 'user'" @click="saveUserInput">Save</button>
+        <button @click="toggleEditMode">{{ editMode ? 'Save' : '✎' }}</button>
         <button v-if="editMode && selectedOption ==='fill'" @click="addQualification">+</button>
         <button v-if="editMode && selectedOption ==='user'" @click="addQualificationuser">+</button>
         <button v-if="editMode && selectedOption ==='fill'" @click="addUserInput">Text box</button>
         <button v-if="editMode && selectedOption ==='user'" @click="addFillbox">fill box</button>
+        <button v-if="editMode" @click="cancelEdit">Cancel</button>
       </div>
     </div>
     <ul>
@@ -27,7 +27,7 @@
             <input type="text" v-model="qualification.page_no" class="edit-input" placeholder="Page no" />
             <input type="text" v-model="qualification.indexing" class="edit-input" placeholder="Indexing" />
             <input type="text" v-model="qualification.dol_link" class="edit-input" placeholder="Dol Link" />
-            <button @click="removeQualification(index)">delete</button>
+            <button @click="removeQualification(qualification._id)">delete</button>
           </div>
           
         </template>
@@ -43,7 +43,7 @@
         <template v-if="editMode">
           <div v-if="selectedOption === 'user'">
           <input type="text" v-model="userinput.textbox" class="edit-input" placeholder="Enter user input" >
-          <button @click="removeQualificationUser(index)">delete</button>
+          <button @click="removeQualificationUser(userinput._id)">delete</button>
           </div>
         </template>
           <span v-if="!editMode && selectedOption === 'user'">
@@ -56,6 +56,7 @@
 </template>
 
 <script>
+import axios from 'axios';
 import Datepicker from 'vue3-datepicker';
 
 export default {
@@ -65,18 +66,65 @@ export default {
   data() {
     return {
       editMode: false,
-      qualifications: [
-        { author_name: 'Anushman', title: 'MOHASA: A Dynamic Video Synopsis Approach for Consumer-based Spherical Surveillance Video', confname: 'IEEE Transactions on Consumer Electronics', published: 'random', venue:'Vit', date: new Date(2018,0,1),vol:'200', vol_no: '500',page_no: '25', indexing: '22',dol_link: 'link' },
-      ],
-      userInput: [{textbox: 'type'}],
+      qualifications: [],
+      userInput: [],
       selectedOption: 'fill',
       
     };
   },
   methods: {
-    toggleEditMode() {
-      this.editMode = !this.editMode;
-    },
+    async toggleEditMode() {
+  this.editMode = !this.editMode;
+  if (!this.editMode) {
+    try {
+      // Delete all existing qualifications
+      await Promise.all(this.qualifications.map(qualification => {
+        if (qualification._id) {
+          return axios.delete(`http://localhost:3000/National/fill/${qualification._id}`);
+        }
+        return Promise.resolve(); // Resolve for qualifications without _id
+      }));
+
+      // Save all qualifications
+      await axios.post('http://localhost:3000/National/fill', {
+        National: this.qualifications.map(qualification => ({
+          _id: qualification._id,
+          author_name: qualification.author_name,
+          title: qualification.title,
+          confname: qualification.confname,
+          published: qualification.published,
+          venue: qualification.venue,
+          date: qualification.date,
+          vol: qualification.vol,
+          vol_no: qualification.vol_no,
+          page_no: qualification.page_no,
+          indexing: qualification.indexing,
+          dol_link: qualification.dol_link,
+        }))
+      }
+      );
+
+      await Promise.all(this.userInput.map(unserinput => {
+        if (unserinput._id) {
+          return axios.delete(`http://localhost:3000/National/user/${unserinput._id}`);
+        }
+        return Promise.resolve(); // Resolve for userInput without _id
+      }));
+
+      // Save all userInput
+      await axios.post('http://localhost:3000/National/user', {
+        National: this.userInput.map(userinput => ({
+          _id: userinput._id,
+          textbox: userinput.textbox,
+        }))
+      }
+      );
+      this.fetchData();
+    } catch (error) {
+      console.error('Error saving data:', error);
+    }
+  }
+},
     addQualification() {
       if (this.editMode && this.selectedOption === 'fill') {
         this.qualifications.push({ author_name: '', title: '', confname: '', published: '', date: new  Date(),vol:'', vol_no:'',page_no:'',indexing:'',dol_link:'' });
@@ -87,18 +135,34 @@ export default {
         this.userInput.push({textbox: ''});
     }
     },
-    clearPlaceholder(index) {
-      this.qualifications[index].author_name = '';
-      this.qualifications[index].title = '';
-      this.qualifications[index].confname = '';
-      this.qualifications[index].published  = '';
-      this.qualifications[index].venue  = '';
-      this.qualifications[index].date  = '';
-      this.qualifications[index].vol_no  = '';
-      this.qualifications[index].page_no  = '';
-      this.qualifications[index].indexing  = '';
-      this.qualifications[index].dol_link  = '';
-    },
+    async fetchData() {
+  try {
+    const response = await axios.get('http://localhost:3000/National/fill');
+    this.qualifications = response.data.map(qualification => ({
+      _id: qualification._id,
+      author_name: qualification.author_name,
+          title: qualification.title,
+          confname: qualification.confname,
+          published: qualification.published,
+          venue: qualification.venue,
+          date: new Date (qualification.date),
+          vol: qualification.vol,
+          vol_no: qualification.vol_no,
+          page_no: qualification.page_no,
+          indexing: qualification.indexing,
+          dol_link: qualification.dol_link,
+    }));
+
+    const response1 = await axios.get('http://localhost:3000/National/user');
+    this.userInput = response1.data.map(userinput => ({
+      _id: userinput._id,
+      textbox: userinput.textbox,
+    }));
+
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+},
     
 formatDate(date) {
   const day= date.getDate().toString();
@@ -106,25 +170,42 @@ formatDate(date) {
   const  month= (date.getMonth() + 1);
   return `${day}/${month}/${year}`;  
 },
-addUserInput() {
-      
+async addUserInput() {
       this.selectedOption = 'user';
+      
     },
-    saveUserInput() {
-  
-  this.editMode=!this.editMode 
-},
-addFillbox(){
+async addFillbox(){
   this.selectedOption = 'fill';
 },
-  removeQualification(index){
-    this.qualifications.splice(index,1)
+ async removeQualification(detailId){
+    try {
+        console.log(detailId);
+        await axios.delete(`http://localhost:3000/National/fill/${detailId}`);
+        const index = this.qualifications.findIndex((qualification) => qualification._id === detailId);
+        this.qualifications.splice(index, 1);
+      } catch (error) {
+        console.error('Error deleting detail:', error);
+      }
   },
-  removeQualificationUser(index){
-    this.userInput.splice(index,1);
-  }
+ async removeQualificationUser(detailId){
+    try {
+        console.log(detailId);
+        await axios.delete(`http://localhost:3000/National/user/${detailId}`);
+        const index = this.userInput.findIndex((userinput) => userinput._id === detailId);
+        this.userInput.splice(index, 1);
+      } catch (error) {
+        console.error('Error deleting detail:', error);
+      }
+  },
+  cancelEdit() {
+        this.fetchData();
+        this.editMode = false;
+      }
 
   },
+  mounted(){
+    this.fetchData();
+  }
 };
 </script>
 

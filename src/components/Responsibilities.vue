@@ -11,10 +11,10 @@
       <ul>
         <li v-for="(experience, index) in experiences" :key="index">
           <template v-if="editMode">
-            <input type="text" v-model="experience.designation" class="edit-input" placeholder="Designation" @focus="clearPlaceholder(index)" />
+            <input type="text" v-model="experience.designation" class="edit-input" placeholder="Designation"  />
             <datepicker v-model="experience.fromDate" class="date-picker" placeholder="From Date" :config="{ format: 'dd/MM/yyyy' }" :editable="true"></datepicker>
             <datepicker v-model="experience.toDate" class="date-picker" placeholder="Till Date" :config="{ format: 'dd/MM/yyyy' }" :editable="true"></datepicker>
-            <button @click="removeQualification(index)">delete</button>
+            <button @click="deleteDetail(experience._id)">delete</button>
           </template>
           <template v-else>
             <span>{{ experience.designation }}, ({{ formatDate(experience.fromDate) }} - {{ formatDate(experience.toDate) }})</span>
@@ -25,6 +25,7 @@
   </template>
   
   <script>
+  import axios from 'axios';
   import Datepicker from 'vue3-datepicker';
   
   export default {
@@ -34,109 +35,84 @@
     data() {
       return {
         editMode: false,
-        experiences: [
-          {
-            designation: 'Head of the Department, CSE',
-            fromDate: new Date(2024, 2, 5),
-            toDate: new Date()
-          },
-          {
-            designation: 'Associate Dean, Research and Consultancy',
-            fromDate: new Date(2021, 12, 1),
-            toDate: new Date(2024, 2, 22)
-          },
-          {
-            designation: 'Nodal Officer, IPR Cell',
-            fromDate: new Date(24, 3, 31),
-            toDate: new Date()
-          },
-          {
-            designation: 'Chairperson, IPR Cell',
-            fromDate: new Date(2022, 5, 16),
-            toDate: new Date(2024, 2, 29)
-          },
-          {
-            designation: 'Chairperson, Web Committee',
-            fromDate: new Date(2020, 10, 1),
-            toDate: new Date()
-          },
-          {
-            designation: 'Chairperson, Social Media Committee',
-            fromDate: new Date(2019, 7, 1),
-            toDate: new Date()
-          },
-          {
-            designation: 'Convener, NISP Policy Implementation Committee',
-            fromDate: new Date(2020, 6, 1),
-            toDate: new Date()
-          },
-          {
-            designation: 'Faculty Adviser, Photography Club',
-            fromDate: new Date(2018, 7, 1),
-            toDate: new Date()
-          },
-          {
-            designation: 'Faculty Adviser, Arts and Crafts Club',
-            fromDate: new Date(2019, 8),
-            toDate: new Date(2023, 5, 1)
-          },
-          {
-            designation: 'Faculty Adviser, Coding Club',
-            fromDate: new Date(2022, 10, 1),
-            toDate: new Date(2023, 5, 1)
-          },
-          {
-            designation: 'SPOC, PMKVY 4.0 Implementation',
-            fromDate: new Date(2023, 3, 1),
-            toDate: new Date()
-          },
-          {
-            designation: 'SPOC, Implementation of MSME Innovative',
-            fromDate: new Date(2022, 5, 1),
-            toDate: new Date()
-          },
-        ]
+        experiences: []
       };
     },
     methods: {
-      toggleEditMode() {
-        if (this.editMode) {
-          // Remove empty experiences if they exist
-          this.experiences = this.experiences.filter(exp => exp.designation.trim() !== '');
-          // You can add logic here to save changes to a database or perform other actions
+      async toggleEditMode() {
+  this.editMode = !this.editMode;
+  if (!this.editMode) {
+    try {
+      // Delete all existing experiences
+      await Promise.all(this.experiences.map(experience => {
+        if (experience._id) {
+          return axios.delete(`http://localhost:3000/api/Responsibilities/${experience._id}`);
         }
-        this.editMode = !this.editMode;
-      },
+        return Promise.resolve(); // Resolve for experiences without _id
+      }));
+
+      // Save all experiences
+      await axios.post('http://localhost:3000/api/Responsibilities', {
+        Responsibilities: this.experiences.map(experience => ({
+          _id: experience._id,
+          designation: experience.designation,
+          fromDate: experience.fromDate,
+          toDate: experience.toDate
+        }))
+      }
+      );
+
+      this.fetchData();
+    } catch (error) {
+      console.error('Error saving data:', error);
+    }
+  }
+},
+
       addNewExperience() {
         if (this.editMode) {
           this.experiences.push({
             designation: '',
-            branch: '',
-            college: '',
             fromDate: new Date(),
             toDate: new Date()
           });
         }
       },
-      cancelEdit() {
-        this.editMode = false;
-        // Reset the input fields or perform other cancelation logic if needed
-      },
-      clearPlaceholder(index) {
-        // Clear placeholder when the user starts typing
-        this.experiences[index].designation = '';
-      },
-      removeQualification(index){
-      this.experiences.splice(index,1)
-      },
       formatDate(date) {
+        const formattedDate = new Date(date);
         const options = { year: 'numeric', month: 'long', day: 'numeric' };
-        return date.toLocaleDateString('en-US', options);
+        return formattedDate.toLocaleDateString('en-US', options); 
+},
+async fetchData() {
+  try {
+    const response = await axios.get('http://localhost:3000/api/Responsibilities');
+    this.experiences = response.data.map(experience => ({
+      _id: experience._id,
+      designation: experience.designation,
+      fromDate: new Date(experience.fromDate),
+      toDate: new Date(experience.toDate)
+    }));
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+},
+    async deleteDetail(detailId) {
+      try {
+        console.log(detailId);
+        await axios.delete(`http://localhost:3000/api/Responsibilities/${detailId}`);
+        const index = this.experiences.findIndex((experience) => experience._id === detailId);
+        this.experiences.splice(index, 1);
+      } catch (error) {
+        console.error('Error deleting detail:', error);
       }
     }
+    },
+    mounted() {
+    this.fetchData(); 
+  }
   };
   </script>
-  
+
   <style scoped>
   .responsibilities {
     font-family:Arial, Helvetica, sans-serif;

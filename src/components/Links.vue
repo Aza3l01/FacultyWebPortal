@@ -11,8 +11,8 @@
       <ul>
         <li v-for="(link, index) in links" :key="index">
           <template v-if="editMode">
-            <input type="text" v-model="links[index].title" placeholder="Link Title" class="edit-input" />
-            <input type="text" v-model="links[index].url" placeholder="Link URL" class="edit-input" />
+            <input type="text" v-model="link.title" placeholder="Link Title" class="edit-input" />
+            <input type="text" v-model="link.url" placeholder="Link URL" class="edit-input" />
           </template>
           <template v-else>
             <a :href="link.url" target="_blank">{{ link.title }}</a>
@@ -23,44 +23,92 @@
   </template>
   
   <script>
+  import axios from 'axios';
+  import Datepicker from 'vue3-datepicker';
+  
   export default {
+    components: {
+      Datepicker
+    },
     data() {
       return {
         editMode: false,
-        links: [
-          { title: 'Orchid', url: 'https://orcid.org/%200000-0002-5040-6557' },
-          { title: 'Google Scholar', url: 'https://scholar.google.com/citations?user=krRO0w4AAAAJ&hl=en' },
-          { title: 'Linkedin', url: 'http://www.linkedin.com/in/ansumanmahapatra' },
-          { title: 'Publons', url: 'https://publons.com/researcher/2690899/ansuman-mahapatra/' },
-          { title: 'IRINS/ Vidwan', url: 'https://nitpy.irins.org/profile/101688' },
-          { title: 'Scopus', url: 'whttps://www.scopus.com/authid/detail.uri?authorId=56964772300' },
-          { title: 'Twitter', url: 'https://twitter.com/helloansuman?ref_src=twsrc%5Etfw' }
-        ]
+        links: []
       };
     },
     methods: {
-      toggleEditMode() {
-        if (this.editMode) {
-          // Remove empty links if they exist
-          this.links = this.links.filter(link => link.title.trim() !== '' && link.url.trim() !== '');
-          // You can add logic here to save changes to a database or perform other actions
+      async toggleEditMode() {
+  this.editMode = !this.editMode;
+  if (!this.editMode) {
+    try {
+      // Delete all existing links
+      await Promise.all(this.links.map(link => {
+        if (link._id) {
+          return axios.delete(`http://localhost:3000/Links/${link._id}`);
         }
-        this.editMode = !this.editMode;
-      },
-      addNewLink() {
-        if (this.editMode) {
-          this.links.push({ title: '', url: '' });
-          // If you have default values for new links, you can assign them here
-        }
-      },
-      cancelEdit() {
-        this.editMode = false;
-        // You may want to reset the input values or revert changes if needed
+        return Promise.resolve(); // Resolve for links without _id
+      }));
+
+      // Save all links
+      await axios.post('http://localhost:3000/Links', {
+        Links: this.links.map(link => ({
+          _id: link._id,
+          title: link.title,
+          url: link.url,
+        }))
       }
+      );
+
+      this.fetchData();
+    } catch (error) {
+      console.error('Error saving data:', error);
     }
+  }
+},
+
+addNewLink() {
+        if (this.editMode) {
+          this.links.push({
+            title: '',
+            url: '',
+          });
+        }
+      },
+      formatDate(date) {
+        return date.getFullYear().toString();
+},
+async fetchData() {
+  try {
+    const response = await axios.get('http://localhost:3000/Links');
+    this.links = response.data.map(link => ({
+      _id: link._id,
+      title: link.title,
+      url: link.url,
+    }));
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+},
+    async deleteDetail(detailId) {
+      try {
+        console.log(detailId);
+        await axios.delete(`http://localhost:3000/Links/${detailId}`);
+        const index = this.links.findIndex((link) => link._id === detailId);
+        this.links.splice(index, 1);
+      } catch (error) {
+        console.error('Error deleting detail:', error);
+      }
+    },
+    cancelEdit() {
+        this.fetchData();
+        this.editMode = false;
+      }
+    },
+    mounted() {
+    this.fetchData(); 
+  }
   };
   </script>
-  
   <style scoped>
   /* Your existing styles */
   

@@ -3,7 +3,7 @@
       <div class="header-container">
         <h2 class="heading">Department Responsibilities</h2>
         <div class="buttons">
-          <button @click="toggleEditMode">{{ editMode ? 'Save' : '✎' }}</button>
+          <button v-if="isLoggedIn" @click="toggleEditMode">{{ editMode ? 'Save' : '✎' }}</button>
           <button v-if="editMode" @click="addNewExperience">+</button>
         </div>
       </div>
@@ -26,7 +26,8 @@
   <script>
   import axios from 'axios';
   import Datepicker from 'vue3-datepicker';
-  
+  import { mapGetters, mapState } from "vuex";
+
   export default {
     components: {
       Datepicker
@@ -36,7 +37,12 @@
         editMode: false,
         experiences: []
       };
-    },
+    },computed: {
+    ...mapGetters(["isLoggedIn"]),
+    ...mapState({
+      token: (state) => state.token,
+    }),
+  },
     methods: {
       async toggleEditMode() {
   this.editMode = !this.editMode;

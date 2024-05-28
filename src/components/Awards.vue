@@ -3,7 +3,7 @@
       <div class="header-container">
         <h2 class="heading">Awards and Achivements</h2>
         <div class="buttons">
-          <button @click="toggleEditMode">{{ editMode ? 'Save' : '✎' }}</button>
+          <button v-if="isLoggedIn" @click="toggleEditMode">{{ editMode ? 'Save' : '✎' }}</button>
           <button v-if="editMode" @click="addNewArea">+</button>
           <button v-if="editMode" @click="cancelEdit">Cancel</button>
         </div>
@@ -23,6 +23,7 @@
   </template>
   
   <script>
+  import { mapGetters, mapState } from "vuex";
   import axios from 'axios';
   export default {
     data() {
@@ -31,6 +32,12 @@
         researchAreas: []
       };
     },
+    computed: {
+    ...mapGetters(["isLoggedIn"]),
+    ...mapState({
+      token: (state) => state.token,
+    }),
+  },
     methods: {
       async toggleEditMode() {
         if (this.editMode) {

@@ -3,7 +3,7 @@
       <div class="header-container">
         <h2 class="heading">National Journal</h2>
         <div class="buttons">
-          <button v-if="!(editMode && selectedOption ==='user')" @click="toggleEditMode">{{ editMode ? 'Save' : '✎' }}</button>
+          <button v-if="!(editMode && selectedOption ==='user')&& isLoggedIn" @click="toggleEditMode">{{ editMode ? 'Save' : '✎' }}</button>
           <button v-if="editMode && selectedOption === 'user'" @click="saveUserInput">Save</button>
           <button v-if="editMode && selectedOption ==='fill'" @click="addQualification">+</button>
           <button v-if="editMode && selectedOption ==='user'" @click="addQualificationuser">+</button>
@@ -58,7 +58,8 @@
   <script>
   import axios from 'axios';
   import Datepicker from 'vue3-datepicker';
-  
+  import { mapGetters, mapState } from "vuex";
+
   export default {
     components: {
       Datepicker
@@ -68,10 +69,15 @@
         editMode: false,
         qualifications: [],
         userInput: [],
-        selectedOption: 'fill',
+        selectedOption: 'user',
         
       };
-    },
+    },computed: {
+    ...mapGetters(["isLoggedIn"]),
+    ...mapState({
+      token: (state) => state.token,
+    }),
+  },
     methods: {
      async toggleEditMode() {
         this.editMode = !this.editMode;

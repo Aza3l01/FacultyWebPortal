@@ -2,7 +2,7 @@
   <div>
     <div class="header-container">
       <h1>{{ title }}</h1>
-      <button class="edit-button" @click="editInfo">{{ isEditing ? 'Save' : '✎' }}</button>
+      <button v-if="isLoggedIn" class="edit-button" @click="editInfo">{{ isEditing ? 'Save' : '✎' }}</button>
       <button v-if="isEditing" class="cancel-button" @click="cancelEdit">Cancel</button>
     </div>
     <h3>{{ designation }}</h3>
@@ -15,6 +15,7 @@
 
 <script>
 import axios from 'axios';
+import { mapGetters, mapState } from "vuex";
 export default {
   data() {
     return {
@@ -26,6 +27,12 @@ export default {
       phone: "",
       isEditing: false,
     };
+  },
+  computed: {
+    ...mapGetters(["isLoggedIn"]),
+    ...mapState({
+      token: (state) => state.token,
+    }),
   },
   methods: {
     async editInfo() {
@@ -54,7 +61,7 @@ export default {
   try {
     const response = await axios.get('http://localhost:3000/Details');
     const userinfo = response.data;
-    console.log(userinfo);
+    //console.log(userinfo);
     this.email = userinfo.email;
     this.phone = userinfo.phone;
   } catch (error) {

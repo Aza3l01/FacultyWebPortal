@@ -3,7 +3,7 @@
     <div class="header-container">
       <h2 class="heading">Academic Contributions</h2>
       <div class="buttons">
-        <button @click="toggleEditMode" class="edit-button">{{ editMode ? 'Save' : '✎' }}</button>
+        <button v-if="isLoggedIn" @click="toggleEditMode" class="edit-button">{{ editMode ? 'Save' : '✎' }}</button>
         <button v-if="editMode" @click="addNewElement('ugCourses')" class="plus-button right">UG +</button>
         <button v-if="editMode" @click="addNewElement('pgCourses')" class="plus-button right">PG +</button>
         <button v-if="editMode" @click="cancelEdit" class="cancel-button">cancel</button>
@@ -38,6 +38,7 @@
   
   <script>
   import axios from 'axios';
+  import { mapGetters, mapState } from "vuex";
   export default {
     data() {
       return {
@@ -46,6 +47,12 @@
         pgCourses: [{course:''}]
       };
     },
+    computed: {
+    ...mapGetters(["isLoggedIn"]),
+    ...mapState({
+      token: (state) => state.token,
+    }),
+  },
     methods: {
     async toggleEditMode() {
       this.editMode = !this.editMode;

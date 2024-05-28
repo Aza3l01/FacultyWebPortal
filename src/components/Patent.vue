@@ -3,7 +3,7 @@
     <div class="header-container">
       <h2 class="heading">Patent</h2>
       <div class="buttons">
-        <button @click="toggleEditMode">{{ editMode ? 'Save' : '✎' }}</button>
+        <button v-if="isLoggedIn" @click="toggleEditMode">{{ editMode ? 'Save' : '✎' }}</button>
         <button v-if="editMode" @click="addNewArea">+</button>
         <button v-if="editMode" @click="cancelEdit">Cancel</button>
       </div>
@@ -27,6 +27,7 @@
 
 <script>
 import axios from 'axios';
+import { mapGetters, mapState } from "vuex";
 
 export default {
   data() {
@@ -34,6 +35,12 @@ export default {
       editMode: false,
       details: []
     };
+  },
+  computed: {
+    ...mapGetters(["isLoggedIn"]),
+    ...mapState({
+      token: (state) => state.token,
+    }),
   },
   methods: {
     async toggleEditMode() {

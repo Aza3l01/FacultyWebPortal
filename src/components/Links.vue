@@ -3,7 +3,7 @@
       <div class="header-container">
         <h2 class="heading">Other Links</h2>
         <div class="buttons">
-          <button @click="toggleEditMode">{{ editMode ? 'Save' : '✎' }}</button>
+          <button v-if="isLoggedIn" @click="toggleEditMode">{{ editMode ? 'Save' : '✎' }}</button>
           <button v-if="editMode" @click="addNewLink">+</button>
           <button v-if="editMode" @click="cancelEdit">Cancel</button>
         </div>
@@ -25,7 +25,8 @@
   <script>
   import axios from 'axios';
   import Datepicker from 'vue3-datepicker';
-  
+  import { mapGetters, mapState } from "vuex";
+
   export default {
     components: {
       Datepicker
@@ -36,6 +37,12 @@
         links: []
       };
     },
+    computed: {
+    ...mapGetters(["isLoggedIn"]),
+    ...mapState({
+      token: (state) => state.token,
+    }),
+  },
     methods: {
       async toggleEditMode() {
   this.editMode = !this.editMode;

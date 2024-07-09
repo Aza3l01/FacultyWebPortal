@@ -63,6 +63,7 @@
       await axios.post('http://localhost:3000/Experience', {
         Experience: this.experiences.map(experience => ({
           _id: experience._id,
+          username:this.$route.params.id,
           designation: experience.designation,
           branch: experience.branch,
           college: experience.college,
@@ -85,34 +86,41 @@
             designation: '',
             branch: '',
             college: '',
-            fromDate: new Date(),
-            toDate: new Date()
           });
         }
       },
+
       formatDate(date) {
+        if (!date || date === 'Invalid Date') {
+        return 'Present';
+      }
         const formattedDate = new Date(date);
+        if (isNaN(formattedDate)) {
+        return 'Ongoing';
+      }
         const options = { year: 'numeric', month: 'long', day: 'numeric' };
         return formattedDate.toLocaleDateString('en-US', options); 
 },
+
 async fetchData() {
   try {
-    const response = await axios.get('http://localhost:3000/Experience');
+    const response = await axios.get(`http://localhost:3000/Experience/${this.$route.params.id}`);
     this.experiences = response.data.map(experience => ({
       _id: experience._id,
       designation: experience.designation,
       branch: experience.branch,
       college: experience.college,
       fromDate: new Date(experience.fromDate),
-      toDate: new Date(experience.toDate)
+      toDate: experience.toDate ? new Date(experience.toDate) : null
     }));
+
   } catch (error) {
     console.error('Error fetching data:', error);
   }
 },
+
     async deleteDetail(detailId) {
       try {
-        console.log(detailId);
         await axios.delete(`http://localhost:3000/Experience/${detailId}`);
         const index = this.experiences.findIndex((experience) => experience._id === detailId);
         this.experiences.splice(index, 1);
@@ -120,6 +128,8 @@ async fetchData() {
         console.error('Error deleting detail:', error);
       }
     },
+
+    
 
     cancelEdit() {
         this.fetchData();

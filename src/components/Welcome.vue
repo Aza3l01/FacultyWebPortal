@@ -3,6 +3,7 @@
     <router-link v-if="!isLoggedIn" to="/login">Login</router-link>
   </div>
   <div>
+    <EditableBanner />
     <Details />
     <Educational />
     <Experience />
@@ -14,6 +15,7 @@
     <Nationaljournal />
     <Bookchapter />
     <Patent />
+    <Responsibilities />
     <Dresponsibilities />
     <Aresponsibilities />
     <Laboratory />
@@ -31,11 +33,11 @@
 import { defineComponent } from 'vue';
 import { mapGetters, mapState } from "vuex";
 //import NavBar from './NavBar.vue';
-//import EditableBanner from './banner/EditableBanner.vue';
+import EditableBanner from './banner/EditableBanner.vue';
 import Details from './Details.vue';
-import Responsibilities from './Responsibilities.vue';
-import Experience from './Experience.vue';
 import Research from './Research.vue';
+import Educational from './Educational.vue';
+import Experience from './Experience.vue';
 import Academic from './Academic.vue';
 import Internationalconference from './Internationalconference.vue';
 import National from './National.vue';
@@ -43,7 +45,7 @@ import Internationaljournal from './Internationaljournal.vue';
 import Nationaljournal from './Nationaljournal.vue';
 import Bookchapter from './Bookchapter.vue';
 import Patent from './Patent.vue';
-//import Responsibilities from './Responsibilities.vue';
+import Responsibilities from './Responsibilities.vue';
 import Dresponsibilities from './Dresponsibilities.vue';
 import Aresponsibilities from './Aresponsibilities.vue';
 import Laboratory from './Laboratory.vue';
@@ -59,7 +61,9 @@ import Links from './Links.vue';
 export default defineComponent({
   components: {
     Details ,
+    EditableBanner,
     Experience ,
+    Educational ,
     Research ,
     Academic ,
     Internationalconference ,
@@ -68,6 +72,7 @@ export default defineComponent({
     Nationaljournal ,
     Bookchapter ,
     Patent ,
+    Responsibilities,
     Dresponsibilities ,
     Aresponsibilities ,
     Laboratory ,

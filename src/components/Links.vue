@@ -60,6 +60,7 @@
       await axios.post('http://localhost:3000/Links', {
         Links: this.links.map(link => ({
           _id: link._id,
+          username:this.$route.params.id,
           title: link.title,
           url: link.url,
         }))
@@ -86,7 +87,7 @@ addNewLink() {
 },
 async fetchData() {
   try {
-    const response = await axios.get('http://localhost:3000/Links');
+    const response = await axios.get(`http://localhost:3000/Links/${this.$route.params.id}`);
     this.links = response.data.map(link => ({
       _id: link._id,
       title: link.title,

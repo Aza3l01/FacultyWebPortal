@@ -48,15 +48,16 @@ export default {
         try {
           await Promise.all(this.details.map(detail => {
         if (detail._id) {
-          return axios.delete(`http://localhost:3000/api/users/${detail._id}`);
+          return axios.delete(`http://localhost:3000/patent/${detail._id}`);
         }
         return Promise.resolve(); // Resolve for details without _id
       }));
 
       // Save all details
-      await axios.post('http://localhost:3000/api/users', {
+      await axios.post('http://localhost:3000/patent', {
         details: this.details.map(detail => ({
           _id: detail._id,
+          username:this.$route.params.id,
           details: detail.details,
         }))
       }
@@ -78,7 +79,7 @@ export default {
 
   async fetchData() {
       try {
-        const response = await axios.get('http://localhost:3000/api/users');
+        const response = await axios.get(`http://localhost:3000/patent/${this.$route.params.id}`);
         this.details = response.data.map(detail => ({
       _id: detail._id,
       details: detail.details,
@@ -90,7 +91,7 @@ export default {
   
   async deleteDetail(detailId) {
       try {
-        await axios.delete(`http://localhost:3000/api/users/${detailId}`);
+        await axios.delete(`http://localhost:3000/patent/${detailId}`);
         const index = this.details.findIndex((detail) => detail._id === detailId);
         this.details.splice(index, 1);
       } catch (error) {

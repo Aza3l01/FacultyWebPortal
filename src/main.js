@@ -27,7 +27,7 @@ const store = createStore({
   },
 });
 
-const routes = [{ path: '/', component: Welcome },
+const routes = [{ path: '/:id', component: Welcome },
 {path: '/login', component: Login}
 ];
 

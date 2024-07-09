@@ -54,6 +54,7 @@
       await axios.post('http://localhost:3000/Laboratory', {
         researchAreas: this.researchAreas.map(area => ({
           _id: area._id,
+          username:this.$route.params.id,
           researchAreas: area.researchAreas,
         }))
       }
@@ -73,7 +74,7 @@
       },
       async fetchData() {
       try {
-        const response = await axios.get('http://localhost:3000/Laboratory');
+        const response = await axios.get(`http://localhost:3000/Laboratory/${this.$route.params.id}`);
         this.researchAreas = response.data.map(area => ({
       _id: area._id,
       researchAreas: area.researchAreas,

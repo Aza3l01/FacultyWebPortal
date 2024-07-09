@@ -51,15 +51,16 @@
       // Delete all existing experiences
       await Promise.all(this.experiences.map(experience => {
         if (experience._id) {
-          return axios.delete(`http://localhost:3000/api/Dresponsibilities/${experience._id}`);
+          return axios.delete(`http://localhost:3000/Dresponsibilities/${experience._id}`);
         }
         return Promise.resolve(); // Resolve for experiences without _id
       }));
 
       // Save all experiences
-      await axios.post('http://localhost:3000/api/Dresponsibilities', {
+      await axios.post('http://localhost:3000/Dresponsibilities', {
         dresponsibilities: this.experiences.map(experience => ({
           _id: experience._id,
+          username:this.$route.params.id,
           designation: experience.designation,
           fromDate: experience.fromDate,
           toDate: experience.toDate
@@ -78,24 +79,29 @@
         if (this.editMode) {
           this.experiences.push({
             designation: '',
-            fromDate: new Date(),
-            toDate: new Date()
           });
         }
       },
       formatDate(date) {
+        if (!date || date === 'Invalid Date') {
+        return 'Present';
+      }
+      
         const formattedDate = new Date(date);
+        if (isNaN(formattedDate)) {
+        return 'Present';
+      }
         const options = { year: 'numeric', month: 'long', day: 'numeric' };
         return formattedDate.toLocaleDateString('en-US', options); 
 },
 async fetchData() {
   try {
-    const response = await axios.get('http://localhost:3000/api/Dresponsibilities');
+    const response = await axios.get(`http://localhost:3000/Dresponsibilities/${this.$route.params.id}`);
     this.experiences = response.data.map(experience => ({
       _id: experience._id,
       designation: experience.designation,
       fromDate: new Date(experience.fromDate),
-      toDate: new Date(experience.toDate)
+      toDate: experience.toDate? new Date(experience.toDate):null
     }));
   } catch (error) {
     console.error('Error fetching data:', error);
@@ -104,7 +110,7 @@ async fetchData() {
     async deleteDetail(detailId) {
       try {
         console.log(detailId);
-        await axios.delete(`http://localhost:3000/api/Dresponsibilities/${detailId}`);
+        await axios.delete(`http://localhost:3000/Dresponsibilities/${detailId}`);
         const index = this.experiences.findIndex((experience) => experience._id === detailId);
         this.experiences.splice(index, 1);
       } catch (error) {

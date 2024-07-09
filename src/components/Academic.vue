@@ -69,6 +69,7 @@
       await axios.post('http://localhost:3000/Academic/ug', {
         courses: this.ugCourses.map(area => ({
           _id: area._id,
+          username:this.$route.params.id,
           course: area.course,
         }
         ))
@@ -86,6 +87,7 @@
       await axios.post('http://localhost:3000/Academic/pg', {
         courses: this.pgCourses.map(area => ({
           _id: area._id,
+          username:this.$route.params.id,
           course: area.course,
         }))
       }
@@ -104,12 +106,12 @@
     },
     async fetchData() {
       try {
-        const response = await axios.get('http://localhost:3000/Academic/ug');
+        const response = await axios.get(`http://localhost:3000/Academic/ug/${this.$route.params.id}`);
         this.ugCourses = response.data.map(area => ({
       _id: area._id,
       course: area.course,
     }));
-    const response1 = await axios.get('http://localhost:3000/Academic/pg');
+    const response1 = await axios.get(`http://localhost:3000/Academic/pg/${this.$route.params.id}`);
         this.pgCourses = response1.data.map(area => ({
       _id: area._id,
       course: area.course,

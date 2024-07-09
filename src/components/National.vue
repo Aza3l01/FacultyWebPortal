@@ -95,6 +95,7 @@ export default {
       await axios.post('http://localhost:3000/National/fill', {
         National: this.qualifications.map(qualification => ({
           _id: qualification._id,
+          username:this.$route.params.id,
           author_name: qualification.author_name,
           title: qualification.title,
           confname: qualification.confname,
@@ -106,7 +107,8 @@ export default {
           page_no: qualification.page_no,
           indexing: qualification.indexing,
           dol_link: qualification.dol_link,
-        }))
+        })),
+        selectedOption:this.selectedOption
       }
       );
 
@@ -121,8 +123,10 @@ export default {
       await axios.post('http://localhost:3000/National/user', {
         National: this.userInput.map(userinput => ({
           _id: userinput._id,
+          username:this.$route.params.id,
           textbox: userinput.textbox,
-        }))
+        })),
+        selectedOption:this.selectedOption
       }
       );
       this.fetchData();
@@ -143,7 +147,7 @@ export default {
     },
     async fetchData() {
   try {
-    const response = await axios.get('http://localhost:3000/National/fill');
+    const response = await axios.get(`http://localhost:3000/National/fill/${this.$route.params.id}`);
     this.qualifications = response.data.map(qualification => ({
       _id: qualification._id,
       author_name: qualification.author_name,
@@ -159,11 +163,16 @@ export default {
           dol_link: qualification.dol_link,
     }));
 
-    const response1 = await axios.get('http://localhost:3000/National/user');
+    const response1 = await axios.get(`http://localhost:3000/National/user/${this.$route.params.id}`);
     this.userInput = response1.data.map(userinput => ({
       _id: userinput._id,
       textbox: userinput.textbox,
     }));
+    if (response.data.length > 0) {
+          this.selectedOption = response.data[0].selectedOption;
+        }if (response1.data.length > 0) {
+          this.selectedOption = response1.data[0].selectedOption;
+        }
 
   } catch (error) {
     console.error('Error fetching data:', error);

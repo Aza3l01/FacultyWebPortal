@@ -37,14 +37,13 @@ export default {
           password: this.password,
         }),
       });
-      console.log(response);
       const { user, token } = await response.json();
       this.setUser(user);
       this.setToken(token);
       if(response.ok===false){
         alert("Invalid login information")
       }
-      this.$router.push("/");
+      this.$router.push("/"+this.username);
     },
   },
 };

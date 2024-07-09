@@ -3,8 +3,7 @@
       <div class="header-container">
         <h2 class="heading">Book chapter</h2>
         <div class="buttons">
-          <button v-if="!(editMode && selectedOption ==='user' )&& isLoggedIn" @click="toggleEditMode">{{ editMode ? 'Save' : '✎' }}</button>
-          <button v-if="editMode && selectedOption === 'user'" @click="saveUserInput">Save</button>
+          <button v-if="isLoggedIn" @click="toggleEditMode">{{ editMode ? 'Save' : '✎' }}</button>
           <button v-if="editMode && selectedOption ==='fill'" @click="addQualification">+</button>
           <button v-if="editMode && selectedOption ==='user'" @click="addQualificationuser">+</button>
           <button v-if="editMode && selectedOption ==='fill'" @click="addUserInput">Text box</button>
@@ -90,6 +89,7 @@
       await axios.post('http://localhost:3000/Bookchapter/fill', {
       National: this.qualifications.map(qualification => ({
         _id: qualification._id,
+        username:this.$route.params.id,
         author_name: qualification.author_name,
         title: qualification.title,
         journalname: qualification.journalname,
@@ -101,11 +101,29 @@
         vol_no: qualification.vol_no,
         page_no: qualification.page_no,
         indexing: qualification.indexing,
-      }))
+      })),
+      selectedOption:this.selectedOption,
     }
     );
 
+    await Promise.all(this.userInput.map(unserinput => {
+      if (unserinput._id) {
+        return axios.delete(`http://localhost:3000/Bookchapter/user/${unserinput._id}`);
+      }
+      return Promise.resolve(); // Resolve for userInput without _id
+    }));
+
+    // Save all userInput
+    await axios.post('http://localhost:3000/Bookchapter/user', {
+      National: this.userInput.map(userinput => ({
+        _id: userinput._id,
+        username:this.$route.params.id,
+        textbox: userinput.textbox,
+      })),
+      selectedOption:this.selectedOption
+    }
     
+    );
     
     this.fetchData();
     } catch (error) {
@@ -115,7 +133,7 @@
     },
     async fetchData() {
     try {
-    const response = await axios.get('http://localhost:3000/Bookchapter/fill');
+    const response = await axios.get(`http://localhost:3000/Bookchapter/fill/${this.$route.params.id}`);
     this.qualifications = response.data.map(qualification => ({
     _id: qualification._id,
     author_name: qualification.author_name,
@@ -131,13 +149,17 @@
         indexing: qualification.indexing,
   }));
 
-  const response1 = await axios.get('http://localhost:3000/Bookchapter/user');
+  const response1 = await axios.get(`http://localhost:3000/Bookchapter/user/${this.$route.params.id}`);
   this.userInput = response1.data.map(userinput => ({
     _id: userinput._id,
     textbox: userinput.textbox,
   }));
 
-
+  if (response.data.length > 0) {
+          this.selectedOption = response.data[0].selectedOption;
+        }if (response1.data.length > 0) {
+          this.selectedOption = response1.data[0].selectedOption;
+        }
   } catch (error) {
   console.error('Error fetching data:', error);
   }
@@ -172,6 +194,7 @@
     await axios.post('http://localhost:3000/Bookchapter/user', {
       National: this.userInput.map(userinput => ({
         _id: userinput._id,
+        username:this.$route.params.id,
         textbox: userinput.textbox,
       }))
     }

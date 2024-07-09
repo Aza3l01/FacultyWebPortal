@@ -1,13 +1,13 @@
 <template>
   <div>
     <div class="header-container">
-      <h1>{{ title }}</h1>
+      <h1><span v-if="!isEditing">{{ title }}</span><input v-else placeholder="Enter your name" v-model="title" /></h1>
       <button v-if="isLoggedIn" class="edit-button" @click="editInfo">{{ isEditing ? 'Save' : '✎' }}</button>
       <button v-if="isEditing" class="cancel-button" @click="cancelEdit">Cancel</button>
     </div>
-    <h3>{{ designation }}</h3>
-    <p>{{ department }}</p>
-    <p>{{ address }}</p>
+    <h3><span v-if="!isEditing">{{ designation }}</span><input v-else placeholder="Designation" v-model="designation" /></h3>
+    <p><span v-if="!isEditing">{{ department }}</span><input v-else placeholder="Department" v-model="department" /></p>
+    <p v-if="!isEditing">{{ address }}</p>
     <p>Email: <span v-if="!isEditing">{{ email }}</span><input v-else v-model="email" /></p>
     <p>Phone: <span v-if="!isEditing">{{ phone }}</span><input v-else v-model="phone" /></p>
   </div>
@@ -19,9 +19,9 @@ import { mapGetters, mapState } from "vuex";
 export default {
   data() {
     return {
-      title: "Dr. Ansuman Mahapatra",
-      designation: "Assistant Professor",
-      department: "Department of Computer Science and Engineering",
+      title: "",
+      designation: "",
+      department: "",
       address: "National Institute of Technology Puducherry, Thiruvettakudy, Karaikal - 609609, Puducherry, India",
       email: "",
       phone: "",
@@ -38,16 +38,18 @@ export default {
     async editInfo() {
       if (this.isEditing) {
         await axios.post('http://localhost:3000/Details', {
+      title: this.title,
+      username:this.$route.params.id,
+      designation:this.designation,
+      department:this.department,
       email: this.email,
       phone: this.phone
     })
     .then(response => {
       console.log('User info saved:', response.data);
-      // Optionally, perform additional actions after saving
     })
     .catch(error => {
       console.error('Error saving user info:', error);
-      // Handle error
     });
       }
       this.fetchData();
@@ -59,9 +61,12 @@ export default {
     },
     async fetchData() {
   try {
-    const response = await axios.get('http://localhost:3000/Details');
-    const userinfo = response.data;
-    //console.log(userinfo);
+    const response = await axios.get(`http://localhost:3000/Details/${this.$route.params.id}`);
+    const userinfoarray = response.data;
+    const userinfo=userinfoarray[0];
+    this.title = userinfo.title;
+    this.designation = userinfo.designation;
+    this.department = userinfo.department;
     this.email = userinfo.email;
     this.phone = userinfo.phone;
   } catch (error) {

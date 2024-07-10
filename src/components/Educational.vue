@@ -1,4 +1,3 @@
-
 <template>
   <div class="educational">
     <div class="header-container">
@@ -138,14 +137,15 @@ async fetchData() {
   width: 100%;
   background-color: #c2d8d8;
   padding: 10px 20px; /* Padding for the heading */
-  height: 50px;
+  height: 70px;
   margin-top: 15px;
+  box-sizing: border-box;
 }
 
 .heading {
-color: #3e8687;
-margin: 0;
-text-align: center;
+  color: #3e8687;
+  margin: 0;
+  text-align: center;
 }
 
 .buttons {
@@ -168,25 +168,26 @@ button:hover {
 }
 
 ul {
-  list-style-type: none;
+  list-style-type: disc;
   padding: 25px;
   margin: 0;
-  text-align: center;
+  text-align: left;
 }
+
 
 li {
   margin-bottom: 10px;
 }
 
 .edit-input {
-  width: 400px;
+  width: 500px;
   padding: 5px;
   border-radius: 5px;
 }
 
 .edit-input::placeholder {
   color: #aaa;
-  opacity: 0.5;
+  opacity: 0.5; 
 }
 
 .date-picker {

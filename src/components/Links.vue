@@ -117,9 +117,8 @@ async fetchData() {
   }
   };
   </script>
-  <style scoped>
-  /* Your existing styles */
   
+  <style scoped>  
   .links {
     font-family: Arial, Helvetica, sans-serif;
     display: flex;
@@ -184,7 +183,5 @@ async fetchData() {
     text-decoration: none;
     color: #3e8687;
   }
-  
-  /* Your existing styles */
   </style>
   

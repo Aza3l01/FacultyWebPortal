@@ -5,6 +5,7 @@
     </a>
     <h2 class="head">Faculty Web Portal</h2>
     <router-link v-if="!isLoggedIn" to="/login" class="nav-button right">Login</router-link>
+    <router-link v-else to="/logged-in" class="nav-button right">Logged in</router-link>
   </div>
   <div>
     <EditableBanner />
@@ -156,6 +157,10 @@ html, body {
   padding: 10px;
   cursor: pointer;
   font-size: 16px;
+  text-decoration: none; /* Remove underline */
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .nav-button:hover {

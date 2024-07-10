@@ -3,7 +3,7 @@
     <div class="modal-content">
       <h2>Edit Image</h2>
       <label for="imageInput">Image URL:</label>
-      <input id="imageInput" v-model="imageUrl" @input="autoAppendExtension" />
+      <input id="imageInput" v-model="imageUrl" />
       <div class="button-container">
         <button @click="saveChanges">Save Changes</button>
         <button @click="cancel">Cancel</button>
@@ -27,12 +27,7 @@ export default {
     close() {
       this.visible = false;
     },
-    autoAppendExtension() {
-      // Automatically append ".jpg" to the URL
-      if (this.imageUrl && !this.imageUrl.endsWith('.jpg')) {
-        this.imageUrl += '.jpg';
-      }
-    },
+    
     saveChanges() {
       // Implement your save changes logic here
       console.log('Saving changes...', this.imageUrl);

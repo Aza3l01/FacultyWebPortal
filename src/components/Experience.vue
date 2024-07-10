@@ -141,6 +141,7 @@ async fetchData() {
   }
   };
   </script>
+
 <style scoped>
 .experience {
   font-family:Arial, Helvetica, sans-serif;

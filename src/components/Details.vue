@@ -1,15 +1,24 @@
 <template>
   <div>
     <div class="header-container">
-      <h1><span v-if="!isEditing">{{ title }}</span><input v-else placeholder="Enter your name" v-model="title" /></h1>
+      <h1>
+        <span v-if="!isEditing">{{ title }}</span>
+        <input v-else class="edit-input" placeholder="Enter your name" v-model="title" />
+      </h1>
       <button v-if="isLoggedIn" class="edit-button" @click="editInfo">{{ isEditing ? 'Save' : '✎' }}</button>
       <button v-if="isEditing" class="cancel-button" @click="cancelEdit">Cancel</button>
     </div>
-    <h3><span v-if="!isEditing">{{ designation }}</span><input v-else placeholder="Designation" v-model="designation" /></h3>
-    <p><span v-if="!isEditing">{{ department }}</span><input v-else placeholder="Department" v-model="department" /></p>
+    <h3>
+      <span v-if="!isEditing">{{ designation }}</span>
+      <input v-else class="edit-input" placeholder="Designation" v-model="designation" />
+    </h3>
+    <p>
+      <span v-if="!isEditing">{{ department }}</span>
+      <input v-else class="edit-input" placeholder="Department" v-model="department" />
+    </p>
     <p v-if="!isEditing">{{ address }}</p>
-    <p>Email: <span v-if="!isEditing">{{ email }}</span><input v-else v-model="email" /></p>
-    <p>Phone: <span v-if="!isEditing">{{ phone }}</span><input v-else v-model="phone" /></p>
+    <p> <span v-if="!isEditing">{{ email }}</span><input v-else class="edit-input" placeholder="Email" v-model="email" /></p>
+    <p> <span v-if="!isEditing">{{ phone }}</span><input v-else class="edit-input" placeholder="Phone" v-model="phone" /></p>
   </div>
 </template>
 
@@ -118,4 +127,22 @@ h3 {
   margin-top: 0;
 }
 
+.edit-input {
+  width: 200px;
+  padding: 8px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.edit-input:focus {
+  outline: none;
+  border-color: #3e8687;
+  box-shadow: 0 0 5px rgba(62, 134, 135, 0.5);
+}
+
+.edit-input.input-expanded {
+  width: 400px;
+}
 </style>

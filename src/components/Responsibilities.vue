@@ -17,7 +17,7 @@
           <button @click="deleteDetail(experience._id)">Delete</button>
         </template>
         <template v-else>
-          <span>{{ experience.designation }}, {{ experience.branch }}, {{ experience.college }} ({{ formatDate(experience.fromDate) }} - {{ formatDate(experience.toDate) }})</span>
+          <span>{{ experience.designation }}({{ formatDate(experience.fromDate) }} - {{ formatDate(experience.toDate) }})</span>
         </template>
       </li>
     </ul>

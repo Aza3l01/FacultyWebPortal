@@ -215,12 +215,19 @@
   }
   
   .course-list {
-    margin-bottom: 20px;
-  }
-  
-  .course {
-    margin-bottom: 5px;
-  }
+  margin-bottom: 20px;
+}
+
+.course {
+  display: flex; /* Use flexbox for alignment */
+  align-items: center; /* Center vertically */
+  margin-bottom: 5px;
+}
+
+.course span {
+  margin-left: 10px; /* Add space between bullet and text */
+}
+
   
   .edit-input {
     width: 500px;
